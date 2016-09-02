@@ -3,9 +3,12 @@ package com.example.android.booklisting.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.android.booklisting.Adapter.BookAdapter;
 import com.example.android.booklisting.Class.Book;
+import com.example.android.booklisting.Class.BookNetwork;
 import com.example.android.booklisting.R;
 
 import org.json.JSONArray;
@@ -22,29 +25,37 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    OkHttpClient client = new OkHttpClient();
+//    OkHttpClient client = new OkHttpClient();
+//    ArrayList<Book> book = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Request request = new Request.Builder()
-                .url("https://www.googleapis.com/books/v1/volumes?q=android&maxResults=1")
-                .build();
+//        final Request request = new Request.Builder()
+//                .url("https://www.googleapis.com/books/v1/volumes?q=android&maxResults=1")
+//                .build();
+//
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                System.out.println("You suck dude.");
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                book = new ArrayList<>(extractBookFromJson(response.body().string()));
+//                //updateUI(book);
+//            }
+//        });
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                System.out.println("You suck dude.");
-            }
+        BookNetwork bookNetwork = new BookNetwork();
+        ArrayList<Book> book = bookNetwork.getBook();
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                ArrayList<Book> book = new ArrayList<>(extractBookFromJson(response.body().string()));
-                updateUI(book);
-            }
-        });
+        BookAdapter adapter = new BookAdapter(this, book);
+        ListView bookListView = (ListView) findViewById(R.id.book_list);
+        bookListView.setAdapter(adapter);
     }
 
     private ArrayList<Book> extractBookFromJson(String bookJSON) {
@@ -78,20 +89,29 @@ public class MainActivity extends AppCompatActivity {
         return books;
     }
 
-    private void updateUI (final ArrayList<Book> book) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TextView text1 = (TextView) findViewById(R.id.author_test);
-                String[] authors = book.get(0).getAuthor();
-                text1.setText(authors[0]);
-
-                TextView text2 = (TextView) findViewById(R.id.title_test);
-                text2.setText(book.get(0).getTitle());
-
-                TextView text3 = (TextView) findViewById(R.id.subtitle_test);
-                text3.setText(book.get(0).getSubTitle());
-            }
-        });
-    }
+//    private void updateUI(final ArrayList<Book> book) {
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                for (int i = 0; i < book.size(); i++) {
+//
+//                    TextView authorTextView = (TextView) findViewById(R.id.author_test);
+//                    String[] authors = book.get(i).getAuthor();
+//                    StringBuilder authorList = new StringBuilder();
+//                    for (String author : authors) {
+//                        authorList.append(author);
+//                        authorList.append("\n");
+//                    }
+//                    authorTextView.setText(authorList);
+//
+//                    TextView titleTextView = (TextView) findViewById(R.id.title_test);
+//                    titleTextView.setText(book.get(i).getTitle());
+//
+//                    TextView subTitleTextView = (TextView) findViewById(R.id.subtitle_test);
+//                    subTitleTextView.setText(book.get(i).getSubTitle());
+//                }
+//            }
+//        });
+//    }
 }

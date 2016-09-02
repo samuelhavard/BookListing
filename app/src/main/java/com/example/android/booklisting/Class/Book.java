@@ -1,5 +1,7 @@
 package com.example.android.booklisting.Class;
 
+import android.media.Image;
+
 /**
  * Created by samue_000 on 8/31/2016.
  */
@@ -8,12 +10,20 @@ public class Book {
     private String[] author;
     private String title;
     private String subTitle;
+    //private Image bookImage;
 
     public Book(String[] author, String title, String subTitle) {
         this.author = author;
         this.title = title;
         this.subTitle = subTitle;
     }
+
+//    public Book(String[] author, String title, String subTitle, Image bookImage) {
+//        this.author = author;
+//        this.title = title;
+//        this.subTitle = subTitle;
+//        this.bookImage = bookImage;
+//    }
 
     public String[] getAuthor() {
         return author;
@@ -26,4 +36,8 @@ public class Book {
     public String getSubTitle() {
         return subTitle;
     }
+
+//    public Image getBookImage() {
+//        return bookImage;
+//    }
 }
