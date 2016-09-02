@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BookListing</string>
+    <string name="thumbnail">Book Thumbnail</string>
 </resources>

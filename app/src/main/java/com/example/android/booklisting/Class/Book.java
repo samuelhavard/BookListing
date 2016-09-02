@@ -10,7 +10,7 @@ public class Book {
     private String[] author;
     private String title;
     private String subTitle;
-    //private Image bookImage;
+    private String bookImage;
 
     public Book(String[] author, String title, String subTitle) {
         this.author = author;
@@ -18,12 +18,12 @@ public class Book {
         this.subTitle = subTitle;
     }
 
-//    public Book(String[] author, String title, String subTitle, Image bookImage) {
-//        this.author = author;
-//        this.title = title;
-//        this.subTitle = subTitle;
-//        this.bookImage = bookImage;
-//    }
+    public Book(String[] author, String title, String subTitle, String bookImage) {
+        this.author = author;
+        this.title = title;
+        this.subTitle = subTitle;
+        this.bookImage = bookImage;
+    }
 
     public String[] getAuthor() {
         return author;
@@ -37,7 +37,7 @@ public class Book {
         return subTitle;
     }
 
-//    public Image getBookImage() {
-//        return bookImage;
-//    }
+    public String getBookURL() {
+        return bookImage;
+    }
 }
