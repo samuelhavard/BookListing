@@ -1,7 +1,5 @@
 package com.example.android.booklisting.Class;
 
-import android.media.Image;
-
 /**
  * Created by samue_000 on 8/31/2016.
  */

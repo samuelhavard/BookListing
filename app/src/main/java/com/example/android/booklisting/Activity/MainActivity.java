@@ -1,7 +1,6 @@
 package com.example.android.booklisting.Activity;
 
 
-import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -152,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONObject imageInfo = volumeInfo.getJSONObject("imageLinks");
                     String thumbnailURL = imageInfo.getString("smallThumbnail");
+
 
                     books.add(new Book(authors, title, subTitle, thumbnailURL));
                 }
