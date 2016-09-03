@@ -125,6 +125,11 @@ public class MainActivity extends AppCompatActivity {
             return output.toString();
         }
 
+        /**
+         * 
+         * @param bookJSON
+         * @return
+         */
         private ArrayList<Book> extractBookFromJson(String bookJSON) {
             ArrayList<Book> books = new ArrayList<>();
 
