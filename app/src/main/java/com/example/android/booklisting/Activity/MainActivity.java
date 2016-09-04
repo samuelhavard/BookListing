@@ -65,6 +65,11 @@ public class MainActivity extends AppCompatActivity {
             updateUI(book);
         }
 
+        /**
+         *
+         * @param urlString
+         * @return
+         */
         private URL createUrl(String urlString) {
             URL url;
             try {
@@ -76,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
             return url;
         }
 
+        /**
+         *
+         * @param url
+         * @return
+         * @throws IOException
+         */
         private String makeHttpRequest(URL url) throws IOException {
             String jsonResponse = "";
 
@@ -111,6 +122,12 @@ public class MainActivity extends AppCompatActivity {
             return jsonResponse;
         }
 
+        /**
+         *
+         * @param inputStream
+         * @return
+         * @throws IOException
+         */
         private String readFromStream(InputStream inputStream) throws IOException {
             StringBuilder output = new StringBuilder();
             if (inputStream != null) {
@@ -126,9 +143,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * 
-         * @param bookJSON
-         * @return
+         * extractBookFromJson is a helper mehtod used to parse the JSON data retrieved from
+         * the API into an {@link ArrayList<Book>}.
+         *
+         * @param bookJSON the string retrieved from the API
+         * @return {@link ArrayList<Book>} with information parsed from the JSON response from
+         * the API
          */
         private ArrayList<Book> extractBookFromJson(String bookJSON) {
             ArrayList<Book> books = new ArrayList<>();
@@ -137,27 +157,32 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
             try {
+                //Root JSON object and the JSON array of books in the
                 JSONObject baseBookResponse = new JSONObject(bookJSON);
                 JSONArray bookArray = baseBookResponse.getJSONArray("items");
 
+                //
                 for (int i = 0; i < bookArray.length(); i++) {
                     JSONObject arrayObject = bookArray.getJSONObject(i);
                     JSONObject volumeInfo = arrayObject.getJSONObject("volumeInfo");
                     JSONArray authorsArray = volumeInfo.getJSONArray("authors");
 
+                    //Parse the authors into an array of String
                     String[] authors = new String[authorsArray.length()];
                     for (int j = 0; j < authorsArray.length(); j++) {
                         authors[j] = authorsArray.getString(j);
                     }
 
+                    //Parse the title and subtitle as Strings
                     String title = volumeInfo.getString("title");
                     String subTitle = volumeInfo.getString("subtitle");
 
-
+                    //Parse the thumbnail URL picture as a String
                     JSONObject imageInfo = volumeInfo.getJSONObject("imageLinks");
                     String thumbnailURL = imageInfo.getString("smallThumbnail");
 
-
+                    //adds the parsed data into a new Book object and added to the
+                    //ArrayList
                     books.add(new Book(authors, title, subTitle, thumbnailURL));
                 }
             } catch (JSONException e) {
