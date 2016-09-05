@@ -40,7 +40,12 @@ public class BookAdapter extends ArrayAdapter<Book> {
         titleTextView.setText(currentBook.getTitle());
 
         TextView subTitleTextView = (TextView) listItemView.findViewById(R.id.sub_title_text_view);
-        subTitleTextView.setText(currentBook.getSubTitle());
+        if (currentBook.getHasSubTitle()) {
+            subTitleTextView.setVisibility(View.VISIBLE);
+            subTitleTextView.setText(currentBook.getSubTitle());
+        } else {
+            subTitleTextView.setVisibility(View.GONE);
+        }
 
         StringBuilder authorsString = new StringBuilder();
         for (int i = 0; i < currentBook.getAuthor().length; i++) {

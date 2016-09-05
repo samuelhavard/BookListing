@@ -36,17 +36,22 @@ public class MainActivity extends AppCompatActivity {
         task.execute();
     }
 
-    private void updateUI (ArrayList<Book> books) {
-        BookAdapter adapter = new BookAdapter(this, books);
-        ListView bookListView = (ListView) findViewById(R.id.list);
-        bookListView.setAdapter(adapter);
-    }
+
 
     private class BookAsyncTask extends AsyncTask<URL, Void, ArrayList<Book>> {
 
+        private final String API_KEY = "AIzaSyB6e_6sra6ky-TmZ0-5lbsjXkbJw9tNm3A";
+
+        private void updateUI (ArrayList<Book> books) {
+            BookAdapter adapter = new BookAdapter(getBaseContext(), books);
+            ListView bookListView = (ListView) findViewById(R.id.list);
+            bookListView.setAdapter(adapter);
+        }
+
         @Override
         protected ArrayList<Book> doInBackground(URL... urls) {
-            URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=android");
+            //URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=Stephen+King&key="+API_KEY);
+            URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=Android&key="+API_KEY);
             String jsonResponse = "";
 
             try {
@@ -173,9 +178,13 @@ public class MainActivity extends AppCompatActivity {
                         authors[j] = authorsArray.getString(j);
                     }
 
-                    //Parse the title and subtitle as Strings
+                    //Parse the title and append it to a string builder.  If there is a subTitle
+                    //parse it and append it below the title
                     String title = volumeInfo.getString("title");
-                    String subTitle = volumeInfo.getString("subtitle");
+                    String subTitle = "";
+                    if (volumeInfo.has("subtitle")) {
+                        subTitle = volumeInfo.getString("subtitle");
+                    }
 
                     //Parse the thumbnail URL picture as a String
                     JSONObject imageInfo = volumeInfo.getJSONObject("imageLinks");
@@ -183,7 +192,11 @@ public class MainActivity extends AppCompatActivity {
 
                     //adds the parsed data into a new Book object and added to the
                     //ArrayList
-                    books.add(new Book(authors, title, subTitle, thumbnailURL));
+                    if(volumeInfo.has("subtitle")) {
+                        books.add(new Book(authors, title, subTitle, thumbnailURL));
+                    } else {
+                        books.add(new Book(authors, title, thumbnailURL));
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
