@@ -42,23 +42,10 @@ public class MainActivity extends AppCompatActivity {
         private final String API_KEY = "AIzaSyB6e_6sra6ky-TmZ0-5lbsjXkbJw9tNm3A";
 
         private void updateUI(ArrayList<Book> books) {
-            String titlePlaceholder = "We were unable to find a book related to your search";
-            String subTitlePlaceholder = "Please try another search";
-            String[] authorsPlaceholder = {""};
-            String thumbnailPlaceholder = "";
-
             BookAdapter adapter;
             ListView bookListView = (ListView) findViewById(R.id.list);
-
-            if(books.isEmpty()) {
-                ArrayList<Book> placeHolder = new ArrayList<>();
-                placeHolder.add(new Book(authorsPlaceholder, titlePlaceholder, subTitlePlaceholder, thumbnailPlaceholder));
-                adapter = new BookAdapter(getBaseContext(),placeHolder);
-                bookListView.setAdapter(adapter);
-            } else {
                 adapter = new BookAdapter(getBaseContext(), books);
                 bookListView.setAdapter(adapter);
-            }
         }
 
         @Override
@@ -127,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -171,45 +159,56 @@ public class MainActivity extends AppCompatActivity {
             if (TextUtils.isEmpty(bookJSON)) {
                 return null;
             }
+
             try {
                 //Root JSON object and the JSON array of books in the
                 JSONObject baseBookResponse = new JSONObject(bookJSON);
-                JSONArray bookArray = baseBookResponse.getJSONArray("items");
+                if (baseBookResponse.has("items")) {
+                    JSONArray bookArray = baseBookResponse.getJSONArray("items");
 
-                //
-                for (int i = 0; i < bookArray.length(); i++) {
-                    JSONObject arrayObject = bookArray.getJSONObject(i);
-                    JSONObject volumeInfo = arrayObject.getJSONObject("volumeInfo");
-                    JSONArray authorsArray = volumeInfo.getJSONArray("authors");
+                    //
+                    for (int i = 0; i < bookArray.length(); i++) {
+                        JSONObject arrayObject = bookArray.getJSONObject(i);
+                        JSONObject volumeInfo = arrayObject.getJSONObject("volumeInfo");
+                        JSONArray authorsArray = volumeInfo.getJSONArray("authors");
 
-                    //Parse the authors into an array of String
-                    String[] authors = new String[authorsArray.length()];
-                    for (int j = 0; j < authorsArray.length(); j++) {
-                        authors[j] = authorsArray.getString(j);
+                        //Parse the authors into an array of String
+                        String[] authors = new String[authorsArray.length()];
+                        for (int j = 0; j < authorsArray.length(); j++) {
+                            authors[j] = authorsArray.getString(j);
+                        }
+
+                        //Parse the title and append it to a string builder.  If there is a subTitle
+                        //parse it and append it below the title
+                        String title = volumeInfo.getString("title");
+                        String subTitle = "";
+                        if (volumeInfo.has("subtitle")) {
+                            subTitle = volumeInfo.getString("subtitle");
+                        }
+
+                        //Parse the thumbnail URL picture as a String
+                        JSONObject imageInfo = volumeInfo.getJSONObject("imageLinks");
+                        String thumbnailURL = imageInfo.getString("smallThumbnail");
+
+                        //adds the parsed data into a new Book object and added to the
+                        //ArrayList
+                        if (volumeInfo.has("subtitle")) {
+                            books.add(new Book(authors, title, subTitle, thumbnailURL));
+                        } else {
+                            books.add(new Book(authors, title, thumbnailURL));
+                        }
                     }
+                } else {
+                    String noBookTitle = "We were unable to find a book related to your search";
+                    String noBookSubTitle = "Please try another search";
+                    String[] noBookAuthor = {""};
+                    String noBookThumbnail = "";
 
-                    //Parse the title and append it to a string builder.  If there is a subTitle
-                    //parse it and append it below the title
-                    String title = volumeInfo.getString("title");
-                    String subTitle = "";
-                    if (volumeInfo.has("subtitle")) {
-                        subTitle = volumeInfo.getString("subtitle");
-                    }
-
-                    //Parse the thumbnail URL picture as a String
-                    JSONObject imageInfo = volumeInfo.getJSONObject("imageLinks");
-                    String thumbnailURL = imageInfo.getString("smallThumbnail");
-
-                    //adds the parsed data into a new Book object and added to the
-                    //ArrayList
-                    if (volumeInfo.has("subtitle")) {
-                        books.add(new Book(authors, title, subTitle, thumbnailURL));
-                    } else {
-                        books.add(new Book(authors, title, thumbnailURL));
-                    }
+                    books.add(new Book(noBookAuthor, noBookTitle, noBookSubTitle, noBookThumbnail));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                return null;
             }
             return books;
         }
