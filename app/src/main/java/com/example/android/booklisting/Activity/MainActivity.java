@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.android.booklisting.Adapter.BookAdapter;
 import com.example.android.booklisting.Class.Book;
@@ -36,22 +37,34 @@ public class MainActivity extends AppCompatActivity {
         task.execute();
     }
 
-
-
     private class BookAsyncTask extends AsyncTask<URL, Void, ArrayList<Book>> {
 
         private final String API_KEY = "AIzaSyB6e_6sra6ky-TmZ0-5lbsjXkbJw9tNm3A";
 
-        private void updateUI (ArrayList<Book> books) {
-            BookAdapter adapter = new BookAdapter(getBaseContext(), books);
+        private void updateUI(ArrayList<Book> books) {
+            String titlePlaceholder = "We were unable to find a book related to your search";
+            String subTitlePlaceholder = "Please try another search";
+            String[] authorsPlaceholder = {""};
+            String thumbnailPlaceholder = "";
+
+            BookAdapter adapter;
             ListView bookListView = (ListView) findViewById(R.id.list);
-            bookListView.setAdapter(adapter);
+
+            if(books.isEmpty()) {
+                ArrayList<Book> placeHolder = new ArrayList<>();
+                placeHolder.add(new Book(authorsPlaceholder, titlePlaceholder, subTitlePlaceholder, thumbnailPlaceholder));
+                adapter = new BookAdapter(getBaseContext(),placeHolder);
+                bookListView.setAdapter(adapter);
+            } else {
+                adapter = new BookAdapter(getBaseContext(), books);
+                bookListView.setAdapter(adapter);
+            }
         }
 
         @Override
         protected ArrayList<Book> doInBackground(URL... urls) {
             //URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=Stephen+King&key="+API_KEY);
-            URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=Android&key="+API_KEY);
+            URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=uytuytutu&key=" + API_KEY);
             String jsonResponse = "";
 
             try {
@@ -71,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         *
          * @param urlString
          * @return
          */
@@ -87,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         *
          * @param url
          * @return
          * @throws IOException
@@ -114,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.e("HTTP_TAG", "URL connection error " + urlConnection.getResponseCode());
                 }
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 if (urlConnection != null) {
@@ -128,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         *
          * @param inputStream
          * @return
          * @throws IOException
@@ -192,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
                     //adds the parsed data into a new Book object and added to the
                     //ArrayList
-                    if(volumeInfo.has("subtitle")) {
+                    if (volumeInfo.has("subtitle")) {
                         books.add(new Book(authors, title, subTitle, thumbnailURL));
                     } else {
                         books.add(new Book(authors, title, thumbnailURL));
