@@ -1,7 +1,8 @@
 package com.example.android.booklisting.Class;
 
 /**
- * Created by samue_000 on 8/31/2016.
+ *  The {@link Book} class is a class created to be used in the BookListing Udacity project.
+ *  {@link Book} contains information about each book parsed from the GoogleBooks API
  */
 public class Book {
 
@@ -33,6 +34,7 @@ public class Book {
         this.title = title;
         this.subTitle = subTitle;
         informationOnly = true;
+        hasSubtitle = true;
     }
 
     public String[] getAuthor() {

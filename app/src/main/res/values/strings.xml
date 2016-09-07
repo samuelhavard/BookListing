@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">BookListing</string>
     <string name="thumbnail">Book Thumbnail</string>
+    <string name="url_error">Error with creating URL</string>
+    <string name="please_try_again">Please try again</string>
+    <string name="unable_to_contact_server">We were unable to contact the server</string>
+    <string name="no_related_search">We were unable to find a book related to your search</string>
 </resources>

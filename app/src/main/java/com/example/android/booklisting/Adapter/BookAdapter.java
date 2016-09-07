@@ -3,6 +3,7 @@ package com.example.android.booklisting.Adapter;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Created by samue_000 on 9/1/2016.
+ * {@link BookAdapter} is used to fill the ListView with {@link Book} objects
  */
 public class BookAdapter extends ArrayAdapter<Book> {
 
@@ -37,6 +38,9 @@ public class BookAdapter extends ArrayAdapter<Book> {
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.book_item, parent, false);
         }
 
+        TextView authorTextView = (TextView) listItemView.findViewById(R.id.author_text_view);
+        ImageView thumbImage = (ImageView) listItemView.findViewById(R.id.book_image_view);
+
         Book currentBook = getItem(position);
 
         TextView titleTextView = (TextView) listItemView.findViewById(R.id.title_text_view);
@@ -50,29 +54,45 @@ public class BookAdapter extends ArrayAdapter<Book> {
             subTitleTextView.setVisibility(View.GONE);
         }
 
-        StringBuilder authorsString = new StringBuilder();
-        for (int i = 0; i < currentBook.getAuthor().length; i++) {
-            authorsString.append(currentBook.getAuthor()[i]);
-            if (i < currentBook.getAuthor().length - 1) {
-                authorsString.append("\n");
+        if (!currentBook.getInformationOnly()) {
+            StringBuilder authorsString = new StringBuilder();
+            for (int i = 0; i < currentBook.getAuthor().length; i++) {
+                authorsString.append(currentBook.getAuthor()[i]);
+                if (i < currentBook.getAuthor().length - 1) {
+                    authorsString.append("\n");
+                }
             }
+            authorTextView.setVisibility(View.VISIBLE);
+            authorTextView.setText(authorsString);
         }
-        TextView authorTextView = (TextView) listItemView.findViewById(R.id.author_text_view);
-        authorTextView.setText(authorsString);
 
-        URL thumbURL = createUrl(currentBook.getBookURL());
+        if (!currentBook.getInformationOnly()) {
+            thumbImage.setVisibility(View.VISIBLE);
+            URL thumbURL = createUrl(currentBook.getBookURL());
 
-        ImageView thumbImage = (ImageView) listItemView.findViewById(R.id.book_image_view);
-        Picasso.with(getContext())
-                .load(String.valueOf(thumbURL))
-                .into(thumbImage);
+            Picasso.with(getContext())
+                    .load(String.valueOf(thumbURL))
+                    .into(thumbImage);
+        }
+
+        if (currentBook.getInformationOnly()) {
+            authorTextView.setVisibility(View.GONE);
+            thumbImage.setVisibility(View.GONE);
+            titleTextView.setGravity(Gravity.CENTER);
+            subTitleTextView.setGravity(Gravity.CENTER);
+        }
 
         return listItemView;
     }
 
+    /**
+     * createURL is a helper method used to check the correctness of the URL for the image
+     *
+     * @param urlString is a URL as a {@link String} to be checked for correctness
+     * @return {@link URL} that has been checked for correctness.
+     */
     private URL createUrl(String urlString) {
         URL url;
-        if (!(urlString.isEmpty())) {
             try {
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
@@ -80,7 +100,5 @@ public class BookAdapter extends ArrayAdapter<Book> {
                 return null;
             }
             return url;
-        }
-        else return null;
     }
 }

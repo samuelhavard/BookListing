@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.android.booklisting.Adapter.BookAdapter;
 import com.example.android.booklisting.Class.Book;
@@ -40,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
         task.execute();
     }
 
+    /**
+     *  BookAsyncTask is used to retrieve and parse API data over the internet.
+     *
+     *  AsyncTask enables proper and easy use of the UI thread. This class allows you to
+     *  perform background operations and publish results on the UI thread without having to
+     *  manipulate threads and/or handlers.
+     */
     private class BookAsyncTask extends AsyncTask<URL, Void, ArrayList<Book>> {
 
         private final String API_KEY = "AIzaSyB6e_6sra6ky-TmZ0-5lbsjXkbJw9tNm3A";
@@ -74,23 +80,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * @param urlString
-         * @return
+         * createUrl is a helper method that is used to check the URL input for correctness
+         *
+         * @param urlString is a {@link String} version of a URL to be parsed for correctness
+         * @return a properly formed {@link URL} or {@link null}
          */
         private URL createUrl(String urlString) {
             URL url;
             try {
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error with creating URL", e);
+                Log.e(LOG_TAG, getString(R.string.url_error), e);
                 return null;
             }
             return url;
         }
 
         /**
-         * @param url
-         * @return
+         * makeHttpRequest is a helper method that creates the URL connection and sends
+         * the input stream to the helper method readFromStream to be converted into a
+         * java String object.
+         *
+         * @param url is a {@link URL} to be used in the {@link HttpURLConnection}
+         * @return a JSON response as a {@link String}
          * @throws IOException
          */
         private String makeHttpRequest(URL url) throws IOException {
@@ -130,8 +142,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * @param inputStream
-         * @return
+         * readFromStream is a helper method to help convert the input stream into a java String
+         * object that can then be parsed.
+         *
+         * @param inputStream is an {@link InputStream} read from the {@link HttpURLConnection}
+         * @return the {@link InputStream} as a {@link String}
          * @throws IOException
          */
         private String readFromStream(InputStream inputStream) throws IOException {
@@ -202,21 +217,15 @@ public class MainActivity extends AppCompatActivity {
                         }
                     } else {
                         //if the search returned without any responses let the user know
-                        String noBookTitle = "We were unable to find a book related to your search";
-                        String noBookSubTitle = "Please try another search";
-                        String[] noBookAuthor = {""};
-                        String noBookThumbnail = "";
-
-                        books.add(new Book(noBookAuthor, noBookTitle, noBookSubTitle, noBookThumbnail));
+                        String noBookTitle = getString(R.string.no_related_search);
+                        String noBookSubTitle = getString(R.string.please_try_again);
+                        books.add(new Book(noBookTitle, noBookSubTitle));
                     }
-                } else if (bookJSON == ERROR) {
+                } else if (bookJSON.equals(ERROR)) {
                     //if there is an issue contacting the server let the user know
-                    String noBookTitle = "We were unable to contact the server";
-                    String noBookSubTitle = "Please try again later";
-                    String[] noBookAuthor = {""};
-                    String noBookThumbnail = "";
-
-                    books.add(new Book(noBookAuthor, noBookTitle, noBookSubTitle, noBookThumbnail));
+                    String noBookTitle = getString(R.string.unable_to_contact_server);
+                    String noBookSubTitle = getString(R.string.please_try_again);
+                    books.add(new Book(noBookTitle, noBookSubTitle));
                 }
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Problem parsing data from JSON results", e);
