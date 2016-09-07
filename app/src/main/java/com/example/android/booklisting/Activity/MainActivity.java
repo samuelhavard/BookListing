@@ -29,6 +29,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String ERROR = "error";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,14 +47,14 @@ public class MainActivity extends AppCompatActivity {
         private void updateUI(ArrayList<Book> books) {
             BookAdapter adapter;
             ListView bookListView = (ListView) findViewById(R.id.list);
-                adapter = new BookAdapter(getBaseContext(), books);
-                bookListView.setAdapter(adapter);
+            adapter = new BookAdapter(getBaseContext(), books);
+            bookListView.setAdapter(adapter);
         }
 
         @Override
         protected ArrayList<Book> doInBackground(URL... urls) {
-            //URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=Stephen+King&key="+API_KEY);
-            URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=uytuytutu&key=" + API_KEY);
+            URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=Stephen+King&key=" + API_KEY);
+            //URL url = createUrl("https://www.googleapis.com/books/v1/volumes?q=uytuytutu&key=" + API_KEY);
             String jsonResponse = "";
 
             try {
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Error with creating URL", e);
                 return null;
             }
             return url;
@@ -110,11 +113,11 @@ public class MainActivity extends AppCompatActivity {
                     inputStream = urlConnection.getInputStream();
                     jsonResponse = readFromStream(inputStream);
                 } else {
-                    Log.e("HTTP_TAG", "URL connection error " + urlConnection.getResponseCode());
+                    Log.e(LOG_TAG, "URL connection error " + urlConnection.getResponseCode());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                return null;
+                jsonResponse = ERROR;
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -155,59 +158,68 @@ public class MainActivity extends AppCompatActivity {
          */
         private ArrayList<Book> extractBookFromJson(String bookJSON) {
             ArrayList<Book> books = new ArrayList<>();
-
             if (TextUtils.isEmpty(bookJSON)) {
                 return null;
             }
-
             try {
-                //Root JSON object and the JSON array of books in the
-                JSONObject baseBookResponse = new JSONObject(bookJSON);
-                if (baseBookResponse.has("items")) {
-                    JSONArray bookArray = baseBookResponse.getJSONArray("items");
+                if (!(bookJSON.equals(ERROR))) {
+                    //Root JSON object and the JSON array of books in the
+                    JSONObject baseBookResponse = new JSONObject(bookJSON);
+                    if (baseBookResponse.has("items")) {
+                        JSONArray bookArray = baseBookResponse.getJSONArray("items");
 
-                    //
-                    for (int i = 0; i < bookArray.length(); i++) {
-                        JSONObject arrayObject = bookArray.getJSONObject(i);
-                        JSONObject volumeInfo = arrayObject.getJSONObject("volumeInfo");
-                        JSONArray authorsArray = volumeInfo.getJSONArray("authors");
+                        //loop over the JSONArray to retrieve each JSON string
+                        for (int i = 0; i < bookArray.length(); i++) {
+                            JSONObject arrayObject = bookArray.getJSONObject(i);
+                            JSONObject volumeInfo = arrayObject.getJSONObject("volumeInfo");
+                            JSONArray authorsArray = volumeInfo.getJSONArray("authors");
 
-                        //Parse the authors into an array of String
-                        String[] authors = new String[authorsArray.length()];
-                        for (int j = 0; j < authorsArray.length(); j++) {
-                            authors[j] = authorsArray.getString(j);
+                            //Parse the authors into an array of String
+                            String[] authors = new String[authorsArray.length()];
+                            for (int j = 0; j < authorsArray.length(); j++) {
+                                authors[j] = authorsArray.getString(j);
+                            }
+
+                            //Parse the title and append it to a string builder.  If there is a subTitle
+                            //parse it and append it below the title
+                            String title = volumeInfo.getString("title");
+                            String subTitle = "";
+                            if (volumeInfo.has("subtitle")) {
+                                subTitle = volumeInfo.getString("subtitle");
+                            }
+
+                            //Parse the thumbnail URL picture as a String
+                            JSONObject imageInfo = volumeInfo.getJSONObject("imageLinks");
+                            String thumbnailURL = imageInfo.getString("smallThumbnail");
+
+                            //adds the parsed data into a new Book object and added to the
+                            //ArrayList
+                            if (volumeInfo.has("subtitle")) {
+                                books.add(new Book(authors, title, subTitle, thumbnailURL));
+                            } else {
+                                books.add(new Book(authors, title, thumbnailURL));
+                            }
                         }
+                    } else {
+                        //if the search returned without any responses let the user know
+                        String noBookTitle = "We were unable to find a book related to your search";
+                        String noBookSubTitle = "Please try another search";
+                        String[] noBookAuthor = {""};
+                        String noBookThumbnail = "";
 
-                        //Parse the title and append it to a string builder.  If there is a subTitle
-                        //parse it and append it below the title
-                        String title = volumeInfo.getString("title");
-                        String subTitle = "";
-                        if (volumeInfo.has("subtitle")) {
-                            subTitle = volumeInfo.getString("subtitle");
-                        }
-
-                        //Parse the thumbnail URL picture as a String
-                        JSONObject imageInfo = volumeInfo.getJSONObject("imageLinks");
-                        String thumbnailURL = imageInfo.getString("smallThumbnail");
-
-                        //adds the parsed data into a new Book object and added to the
-                        //ArrayList
-                        if (volumeInfo.has("subtitle")) {
-                            books.add(new Book(authors, title, subTitle, thumbnailURL));
-                        } else {
-                            books.add(new Book(authors, title, thumbnailURL));
-                        }
+                        books.add(new Book(noBookAuthor, noBookTitle, noBookSubTitle, noBookThumbnail));
                     }
-                } else {
-                    String noBookTitle = "We were unable to find a book related to your search";
-                    String noBookSubTitle = "Please try another search";
+                } else if (bookJSON == ERROR) {
+                    //if there is an issue contacting the server let the user know
+                    String noBookTitle = "We were unable to contact the server";
+                    String noBookSubTitle = "Please try again later";
                     String[] noBookAuthor = {""};
                     String noBookThumbnail = "";
 
                     books.add(new Book(noBookAuthor, noBookTitle, noBookSubTitle, noBookThumbnail));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Problem parsing data from JSON results", e);
                 return null;
             }
             return books;

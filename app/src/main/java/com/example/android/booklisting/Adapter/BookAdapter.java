@@ -2,6 +2,7 @@ package com.example.android.booklisting.Adapter;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,8 @@ public class BookAdapter extends ArrayAdapter<Book> {
     public BookAdapter(Context context, ArrayList<Book> books) {
         super(context, 0, books);
     }
+
+    public static final String LOG_TAG = BookAdapter.class.getSimpleName();
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -69,12 +72,15 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
     private URL createUrl(String urlString) {
         URL url;
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return null;
+        if (!(urlString.isEmpty())) {
+            try {
+                url = new URL(urlString);
+            } catch (MalformedURLException e) {
+                Log.e(LOG_TAG, "Error creating URL", e);
+                return null;
+            }
+            return url;
         }
-        return url;
+        else return null;
     }
 }

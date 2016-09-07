@@ -10,12 +10,14 @@ public class Book {
     private String subTitle;
     private String bookImage;
     private boolean hasSubtitle;
+    private boolean informationOnly;
 
     public Book(String[] author, String title, String bookImage) {
         this.author = author;
         this.title = title;
         this.bookImage = bookImage;
         hasSubtitle = false;
+        informationOnly = false;
     }
 
     public Book(String[] author, String title, String subTitle, String bookImage) {
@@ -24,6 +26,13 @@ public class Book {
         this.subTitle = subTitle;
         this.bookImage = bookImage;
         hasSubtitle = true;
+        informationOnly = false;
+    }
+
+    public Book(String title, String subTitle) {
+        this.title = title;
+        this.subTitle = subTitle;
+        informationOnly = true;
     }
 
     public String[] getAuthor() {
@@ -44,5 +53,9 @@ public class Book {
 
     public boolean getHasSubTitle() {
         return hasSubtitle;
+    }
+
+    public boolean getInformationOnly() {
+        return informationOnly;
     }
 }
