@@ -93,12 +93,12 @@ public class BookAdapter extends ArrayAdapter<Book> {
      */
     private URL createUrl(String urlString) {
         URL url;
-            try {
-                url = new URL(urlString);
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error creating URL", e);
-                return null;
-            }
-            return url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, "Error creating URL", e);
+            return null;
+        }
+        return url;
     }
 }
